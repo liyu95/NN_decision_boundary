@@ -8,6 +8,37 @@ import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.svm import LinearSVC, SVC
 from sklearn.model_selection import cross_val_score
+from itertools import cycle
+import numpy as np
+
+class batch_object(object):
+        """docstring for batch_object"""
+        def __init__(self, data_list, batch_size):
+                super(batch_object, self).__init__()
+                self.data_list = data_list
+                self.batch_size = batch_size
+                self.pool = cycle(data_list)
+                
+        def next_batch(self):
+                data_batch = list()
+                for i in xrange(self.batch_size):
+                        data_batch.append(next(self.pool))
+                data_batch = np.array(data_batch)
+                return data_batch
+
+def to_categorical(label_array,total_classes):
+    from sklearn.preprocessing import OneHotEncoder
+    enc=OneHotEncoder()
+    label_list=[]
+    for i in range(len(label_array)):
+        label_list.append([label_array[i]])
+    return enc.fit_transform(label_list).toarray()
+
+def get_support_ind(feature, label):
+	clf = SVC(kernel='linear')
+	clf.fit(feature, label)
+	return clf.support_
+
 
 # This binary classification should be linear separable
 def play_iris():
