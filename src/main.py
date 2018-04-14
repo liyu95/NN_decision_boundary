@@ -7,13 +7,18 @@ import os
 
 test_size = 0.1
 batch_size = 20
-train_steps = 10000
+train_steps = 3000
 output_step = 1000
 
-data = load_iris()
-feature = data.data
-label = data.target
-label[label==2]=1
+samples = 1000
+margin = 0.2
+
+# data = load_iris()
+# feature = data.data
+# label = data.target
+# label[label==2]=1
+
+feature, label = lin_sep_with_ground_truth(samples, margin)
 
 label_hot = to_categorical(label, 2)
 feature_train, feature_test, label_train, label_test = train_test_split(
@@ -102,12 +107,38 @@ def train_model(train_op):
 
 train_model(train_op)
 
-support_ind = get_support_ind(feature_train, np.argmax(label_train,1))
+clf = get_svm(feature_train, np.argmax(label_train,1))
+support_ind = clf.support_
 cross_entropy_output = sess.run(
 	tf.nn.softmax_cross_entropy_with_logits(
 		labels=y_, logits=y_conv_logit),
 	feed_dict={x: feature_train, 
 			   y_: label_train})
 loss_rank = np.argsort(cross_entropy_output)
-print(support_ind)
-print(loss_rank[-10:])
+print(sorted(support_ind))
+print(sorted(loss_rank[-len(support_ind):]))
+
+
+# visualize the prediction result
+pre_label_nn= sess.run(predicted_label,
+	feed_dict={
+	x: feature_test, 
+	y_: label_test})
+
+pre_label_svm = clf.predict(feature_test)
+
+visual_separable_binary(feature_test, pre_label_svm,margin)
+visual_separable_binary(feature_test, pre_label_nn, margin)
+
+# predict the random data, check the exact boundary
+feature_random, label_random = lin_sep_with_ground_truth(samples, 0.001)
+label_random = to_categorical(label_random, 2)
+pre_label_nn= sess.run(predicted_label,
+	feed_dict={
+	x: feature_random, 
+	y_: label_random})
+
+pre_label_svm = clf.predict(feature_random)
+
+visual_separable_binary(feature_random, pre_label_svm,0.001)
+visual_separable_binary(feature_random, pre_label_nn, 0.001)

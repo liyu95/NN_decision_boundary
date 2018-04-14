@@ -34,10 +34,10 @@ def to_categorical(label_array,total_classes):
         label_list.append([label_array[i]])
     return enc.fit_transform(label_list).toarray()
 
-def get_support_ind(feature, label):
+def get_svm(feature, label):
 	clf = SVC(kernel='linear')
 	clf.fit(feature, label)
-	return clf.support_
+	return clf
 
 
 # This binary classification should be linear separable
@@ -65,20 +65,26 @@ def generate_lin_spe():
 	plt.plot(blue[:, 0], blue[:, 1], 'b.')
 	plt.show()
 
-def lin_sep_with_ground_truth():
-	x = np.random.rand(100)
-	y = np.random.rand(100)
-	z = x+y
-	ind_1 = np.where(z>1.2)[0]
-	ind_2 = np.where(z<0.8)[0]
+def lin_sep_with_ground_truth(size, margin):
+	x1 = np.random.rand(size)
+	x2 = np.random.rand(size)
+	feature =  np.vstack([x1,x2]).transpose()
+	z = np.sum(feature, 1)
+	feature = feature[(z<=1.0-margin) | (z>=1.0+margin)]
+	z = z[(z<=1.0-margin) | (z>=1.0+margin)]
+	ind_1 = np.where(z>=1.0+margin)[0]
+	ind_2 = np.where(z<=1.0-margin)[0]
+	label = np.zeros(len(feature))
+	label[ind_1] = 0
+	label[ind_2] = 1
+	return feature, label
 
-	pylab.scatter(list(x[ind_1])+[0.4,0.8, 0.75],
-		list(y[ind_1])+[0.8, 0.4, 0.45])
-	pylab.scatter(list(x[ind_2])+[0.4, 0.3, 0.2],
-		list(y[ind_2])+[0.4, 0.5, 0.6])
-	pylab.plot([0, 1.2], [1.2, 0])
-	pylab.plot([0, 0.8], [0.8, 0])
+
+def visual_separable_binary(feature,label,margin):
+	pylab.scatter(feature[label==0,0],feature[label==0,1])
+	pylab.scatter(feature[label==1,0],feature[label==1,1])
+	pylab.plot([0, 1.0+margin], [1.0+margin, 0])
+	pylab.plot([0, 1.0-margin], [1.0-margin, 0])
 	pylab.xlim(0,1)
 	pylab.ylim(0,1)
-	pylab.savefig('svm_original.png',dpi=300, bbox_inches='tight')
 	pylab.show()
