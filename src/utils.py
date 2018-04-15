@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from sklearn.datasets import make_classification
+from sklearn.datasets import make_classification, make_blobs
 import sklearn
 import numpy 
 import pylab
@@ -52,20 +52,25 @@ def play_iris():
 	scores = cross_val_score(clf, feature, label, cv=5)
 
 
-def generate_lin_spe():
-	separable = False
-	while not separable:
-	    samples = make_classification(n_samples=100, n_features=2, 
-	    	n_redundant=0, n_informative=1, n_clusters_per_class=1, flip_y=-1)
-	    red = samples[0][samples[1] == 0]
-	    blue = samples[0][samples[1] == 1]
-	    separable = any([red[:, k].max() < blue[:, k].min() or 
-	    	red[:, k].min() > blue[:, k].max() for k in range(2)])
-	plt.plot(red[:, 0], red[:, 1], 'r.')
-	plt.plot(blue[:, 0], blue[:, 1], 'b.')
-	plt.show()
+def generate_lin_sep_blobs(n_samples, random_state):
+	samples = make_blobs(n_samples=n_samples, n_features=2,
+		centers=[(0.2, 0.2), (0.8, 0.8)], cluster_std=0.1,
+		random_state=random_state)
+	return samples[0], samples[1]
 
-def lin_sep_with_ground_truth(size, margin):
+def plot_blobs(feature, label, name=None):
+	pylab.figure()
+	red = feature[label == 0]
+	blue = feature[label == 1]
+	pylab.plot(red[:, 0], red[:, 1], 'r.')
+	pylab.plot(blue[:, 0], blue[:, 1], 'b.')
+	if name==None:
+		pylab.show()
+	else:
+		pylab.savefig(name)
+
+def lin_sep_with_ground_truth(size, margin, random_state):
+	np.random.seed(random_state)
 	x1 = np.random.rand(size)
 	x2 = np.random.rand(size)
 	feature =  np.vstack([x1,x2]).transpose()
@@ -80,11 +85,15 @@ def lin_sep_with_ground_truth(size, margin):
 	return feature, label
 
 
-def visual_separable_binary(feature,label,margin):
+def visual_separable_binary(feature,label,margin, name=None):
+	pylab.figure()
 	pylab.scatter(feature[label==0,0],feature[label==0,1])
 	pylab.scatter(feature[label==1,0],feature[label==1,1])
 	pylab.plot([0, 1.0+margin], [1.0+margin, 0])
 	pylab.plot([0, 1.0-margin], [1.0-margin, 0])
 	pylab.xlim(0,1)
 	pylab.ylim(0,1)
-	pylab.show()
+	if name==None:
+		pylab.show()
+	else:
+		pylab.savefig(name)

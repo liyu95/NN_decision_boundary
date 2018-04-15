@@ -7,18 +7,23 @@ import os
 
 test_size = 0.1
 batch_size = 20
-train_steps = 3000
+train_steps = 30000
 output_step = 1000
 
 samples = 1000
 margin = 0.2
 
+# Iris data
 # data = load_iris()
 # feature = data.data
 # label = data.target
 # label[label==2]=1
 
-feature, label = lin_sep_with_ground_truth(samples, margin)
+# Random sample across the space
+# feature, label = lin_sep_with_ground_truth(samples, margin, random_state=10)
+
+# Blob data
+feature, label = generate_lin_sep_blobs(samples, random_state=10)
 
 label_hot = to_categorical(label, 2)
 feature_train, feature_test, label_train, label_test = train_test_split(
@@ -41,6 +46,16 @@ y_conv_logit, y_conv = model_graph(x, y_)
 with tf.name_scope('cross_entropy'):
 	cross_entropy=tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
 		labels=y_, logits=y_conv_logit))
+	hinge_loss=tf.reduce_mean(tf.losses.hinge_loss(
+		labels=y_, logits=y_conv_logit))
+	mse=tf.reduce_mean(tf.losses.mean_squared_error(
+		labels=y_, predictions=y_conv_logit))
+	abd = tf.reduce_mean(tf.losses.absolute_difference(
+		labels=y_, predictions=y_conv_logit))
+	log_loss = tf.reduce_mean(tf.losses.log_loss(
+		labels=y_, predictions=y_conv_logit))
+	mpse = tf.reduce_mean(tf.losses.mean_pairwise_squared_error(
+		labels=y_, predictions=y_conv_logit))
 	tf.summary.scalar('cross_entropy',cross_entropy)
 
 with tf.name_scope('train'):
@@ -49,11 +64,17 @@ with tf.name_scope('train'):
     l2_loss = tf.add_n([tf.nn.l2_loss(v) for v in weight_collection])
     theta_1 = 0
     cross_entropy_with_weight_decay=tf.add(cross_entropy,theta_1*l2_loss)
-    train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
-    # works for one layer
-    # train_op=tf.train.GradientDescentOptimizer(5e-5).minimize(cross_entropy_with_weight_decay)
-    # works for two layer
-    # train_op=tf.train.GradientDescentOptimizer(3e-5).minimize(cross_entropy_with_weight_decay)
+
+    # train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
+    # train_op=tf.train.GradientDescentOptimizer(5e-4).minimize(cross_entropy_with_weight_decay)
+    # train_op = tf.train.RMSPropOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
+    train_op = tf.train.GradientDescentOptimizer(3e-4).minimize(cross_entropy_with_weight_decay)
+    # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(hinge_loss)
+    # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(mse)
+    # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(abd)
+    # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(log_loss)
+    # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(mpse)
+
 
 #DEFINE EVALUATION
 with tf.name_scope('accuracy'):
@@ -119,19 +140,20 @@ print(sorted(support_ind))
 print(sorted(loss_rank[-len(support_ind):]))
 
 
-# visualize the prediction result
-pre_label_nn= sess.run(predicted_label,
-	feed_dict={
-	x: feature_test, 
-	y_: label_test})
+## visualize the prediction result
+# pre_label_nn= sess.run(predicted_label,
+# 	feed_dict={
+# 	x: feature_test, 
+# 	y_: label_test})
 
-pre_label_svm = clf.predict(feature_test)
+# pre_label_svm = clf.predict(feature_test)
 
-visual_separable_binary(feature_test, pre_label_svm,margin)
-visual_separable_binary(feature_test, pre_label_nn, margin)
+# visual_separable_binary(feature_test, pre_label_svm,margin)
+# visual_separable_binary(feature_test, pre_label_nn, margin)
 
-# predict the random data, check the exact boundary
-feature_random, label_random = lin_sep_with_ground_truth(samples, 0.001)
+## predict the random data, check the exact boundary
+feature_random, label_random = lin_sep_with_ground_truth(samples, 0.0001,
+	random_state=10)
 label_random = to_categorical(label_random, 2)
 pre_label_nn= sess.run(predicted_label,
 	feed_dict={
@@ -140,5 +162,9 @@ pre_label_nn= sess.run(predicted_label,
 
 pre_label_svm = clf.predict(feature_random)
 
-visual_separable_binary(feature_random, pre_label_svm,0.001)
-visual_separable_binary(feature_random, pre_label_nn, 0.001)
+visual_separable_binary(feature_random, pre_label_svm,0.0001,
+	'../result/different_loss_2_fc_sgd/svm_cross_entropy.png')
+visual_separable_binary(feature_random, pre_label_nn, 0.0001,
+	'../result/different_loss_2_fc_sgd/nn_cross_entropy.png')
+
+
