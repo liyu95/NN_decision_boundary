@@ -54,7 +54,7 @@ def play_iris():
 
 def generate_lin_sep_blobs(n_samples, random_state):
 	samples = make_blobs(n_samples=n_samples, n_features=2,
-		centers=[(0.2, 0.2), (0.8, 0.8)], cluster_std=0.1,
+		centers=[(0.1, 0.2), (0.5, 0.8)], cluster_std=0.1,
 		random_state=random_state)
 	return samples[0], samples[1]
 
