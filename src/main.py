@@ -7,7 +7,7 @@ import os
 
 test_size = 0.1
 batch_size = 20
-train_steps = 10000
+train_steps = 20000
 output_step = 1000
 
 samples = 1000
@@ -66,10 +66,10 @@ with tf.name_scope('train'):
     cross_entropy_with_weight_decay=tf.add(cross_entropy,theta_1*l2_loss)
 
     # train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
-    train_op=tf.train.MomentumOptimizer(1e-4, 0.9).minimize(cross_entropy_with_weight_decay)
+    # train_op=tf.train.MomentumOptimizer(1e-4, 0.9).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.RMSPropOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
-    # train_op = tf.train.GradientDescentOptimizer(
-    # 	2e-4).minimize(cross_entropy_with_weight_decay)
+    train_op = tf.train.GradientDescentOptimizer(
+    	2e-4).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(hinge_loss)
     # train_op = tf.train.GradientDescentOptimizer(2e-4).minimize(mse)
     # train_op = tf.train.GradientDescentOptimizer(2e-4).minimize(abd)

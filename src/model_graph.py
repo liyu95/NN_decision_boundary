@@ -64,11 +64,11 @@ def model_graph(x, y_):
 	    b_fc2=bias_variable([2000])
 	    h_fc1=tflearn.relu(tf.matmul(h_fc1,w_fc2)+b_fc2)
 
-	with tf.name_scope('fc_3'):
-	    #Add the third densely connected layer
-	    w_fc3=weight_variable([2000,2000])
-	    b_fc3=bias_variable([2000])
-	    h_fc1=tflearn.relu(tf.matmul(h_fc1,w_fc3)+b_fc3)
+	# with tf.name_scope('fc_3'):
+	#     #Add the third densely connected layer
+	#     w_fc3=weight_variable([2000,2000])
+	#     b_fc3=bias_variable([2000])
+	#     h_fc1=tflearn.relu(tf.matmul(h_fc1,w_fc3)+b_fc3)
 
 	# with tf.name_scope('fc_4'):
 	#     #Add the third densely connected layer
