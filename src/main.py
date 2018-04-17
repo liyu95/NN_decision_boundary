@@ -7,11 +7,11 @@ import os
 
 test_size = 0.1
 batch_size = 20
-train_steps = 20000
+train_steps = 30000
 output_step = 1000
 
 samples = 1000
-margin = 0.2
+margin = 0.01
 
 # Iris data
 # data = load_iris()
@@ -23,7 +23,10 @@ margin = 0.2
 # feature, label = lin_sep_with_ground_truth(samples, margin, random_state=10)
 
 # Blob data
-feature, label = generate_lin_sep_blobs(samples, random_state=10)
+# feature, label = generate_lin_sep_blobs(samples, random_state=10)
+
+# Non linear data
+feature, label = non_lin_sep(samples, margin, random_state=10)
 
 label_hot = to_categorical(label, 2)
 feature_train, feature_test, label_train, label_test = train_test_split(
@@ -65,11 +68,11 @@ with tf.name_scope('train'):
     theta_1 = 0
     cross_entropy_with_weight_decay=tf.add(cross_entropy,theta_1*l2_loss)
 
-    # train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
+    train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
     # train_op=tf.train.MomentumOptimizer(1e-4, 0.9).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.RMSPropOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
-    train_op = tf.train.GradientDescentOptimizer(
-    	2e-4).minimize(cross_entropy_with_weight_decay)
+    # train_op = tf.train.GradientDescentOptimizer(
+    # 	2e-4).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(hinge_loss)
     # train_op = tf.train.GradientDescentOptimizer(2e-4).minimize(mse)
     # train_op = tf.train.GradientDescentOptimizer(2e-4).minimize(abd)
@@ -152,9 +155,12 @@ print(sorted(loss_rank[-len(support_ind):]))
 # visual_separable_binary(feature_test, pre_label_svm,margin)
 # visual_separable_binary(feature_test, pre_label_nn, margin)
 
+plot_blobs(feature, label,
+	'../result/non_linear_demo/training_data.png')
+
 ## predict the random data, check the exact boundary
 feature_random, label_random = lin_sep_with_ground_truth(samples, 0.0001,
-	random_state=10)
+	random_state=100)
 label_random = to_categorical(label_random, 2)
 pre_label_nn= sess.run(predicted_label,
 	feed_dict={
@@ -163,9 +169,13 @@ pre_label_nn= sess.run(predicted_label,
 
 pre_label_svm = clf.predict(feature_random)
 
-visual_separable_binary(feature_random, pre_label_svm,0.0001,
-	'../result/exploration/svm_cross_entropy.png')
-visual_separable_binary(feature_random, pre_label_nn, 0.0001,
-	'../result/exploration/nn_cross_entropy.png')
+# visual_separable_binary(feature_random, pre_label_svm,0.0001,
+# 	'../result/non_linear_demo/svm_cross_entropy.png')
+# visual_separable_binary(feature_random, pre_label_nn, 0.0001,
+# 	'../result/non_linear_demo/nn_cross_entropy.png')
+plot_blobs(feature_random, pre_label_svm,
+	'../result/non_linear_demo/svm_cross_entropy.png')
+plot_blobs(feature_random, pre_label_nn,
+	'../result/non_linear_demo/nn_cross_entropy.png')
 
 
