@@ -85,6 +85,23 @@ def lin_sep_with_ground_truth(size, margin, random_state):
 	return feature, label
 
 
+def non_lin_sep(size, margin, random_state):
+	np.random.seed(random_state)
+	x1 = np.random.rand(size)
+	x2 = np.random.rand(size)
+	feature =  np.vstack([x1,x2]).transpose()
+	z = np.linalg.norm(feature-[0.5,0.5], ord=2, axis=1)
+	feature = feature[(z<=0.2-margin) | (z>=0.2+margin)]
+	z = z[(z<=0.2-margin) | (z>=0.2+margin)]
+	ind_1 = np.where(z>=0.2+margin)[0]
+	ind_2 = np.where(z<=0.2-margin)[0]
+	label = np.zeros(len(feature))
+	label[ind_1] = 0
+	label[ind_2] = 1
+	return feature, label
+
+
+
 def visual_separable_binary(feature,label,margin, name=None):
 	pylab.figure()
 	pylab.scatter(feature[label==0,0],feature[label==0,1])
