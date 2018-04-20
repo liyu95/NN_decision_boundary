@@ -46,7 +46,7 @@ def model_graph(x, y_):
 	    #Add the third densely connected layer
 	    w_fc1=weight_variable([x.get_shape().as_list()[1],2000])
 	    b_fc1=bias_variable([2000])
-	    h_fc1=tflearn.relu(tf.matmul(x,w_fc1)+b_fc1)
+	    h_fc1=tf.square(tf.matmul(x,w_fc1)+b_fc1)
 
 	# with tf.name_scope('conv_1d_1'):
 	#     #Add the third densely connected layer
@@ -62,7 +62,7 @@ def model_graph(x, y_):
 	    w_fc2=weight_variable([
 	    	h_fc1.get_shape().as_list()[1],2000])
 	    b_fc2=bias_variable([2000])
-	    h_fc1=tflearn.relu(tf.matmul(h_fc1,w_fc2)+b_fc2)
+	    h_fc1=tf.square(tf.matmul(h_fc1,w_fc2)+b_fc2)
 
 	# with tf.name_scope('fc_3'):
 	#     #Add the third densely connected layer
@@ -82,5 +82,31 @@ def model_graph(x, y_):
 	    	y_.get_shape().as_list()[1]])
 	    b_s=bias_variable([y_.get_shape().as_list()[1]])
 	    y_conv_logit=tf.matmul(h_fc1,w_s)+b_s
+	    y_conv=tf.nn.softmax(y_conv_logit)
+	return y_conv_logit, y_conv
+
+def model_graph_asym(x, y_):
+	with tf.name_scope('fc_1'):
+	    #Add the third densely connected layer
+	    w_fc1=weight_variable([x.get_shape().as_list()[1],2000])
+	    b_fc1=bias_variable([2000])
+	    h_fc1=tflearn.relu(tf.matmul(x,w_fc1)+b_fc1)
+
+	with tf.name_scope('fc_2'):
+	    #Add the third densely connected layer
+	    w_fc2=weight_variable([
+	    	h_fc1.get_shape().as_list()[1],2000])
+	    b_fc2=bias_variable([2000])
+	    h_fc1=tflearn.relu(tf.matmul(h_fc1,w_fc2)+b_fc2)
+
+	with tf.name_scope('softmax_layer'):
+	    w_s1=weight_variable([1500,1])
+	    w_s2=weight_variable([502,1])
+	    b_s=bias_variable([y_.get_shape().as_list()[1]])
+	    y_conv_logit1 = tf.matmul(h_fc1[:,:1500], w_s1)
+	    y_conv_logit2 = tf.matmul(
+	    	tf.concat([h_fc1[:,1500:], x], 1), w_s2)
+	    y_conv_logit=tf.concat([y_conv_logit1,
+	    	y_conv_logit2],1)+b_s
 	    y_conv=tf.nn.softmax(y_conv_logit)
 	return y_conv_logit, y_conv

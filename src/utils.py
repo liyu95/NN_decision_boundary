@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from sklearn.datasets import make_classification, make_blobs
+from sklearn.datasets import make_circles, make_moons
 import sklearn
 import numpy 
 import pylab
@@ -10,6 +11,7 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.model_selection import cross_val_score
 from itertools import cycle
 import numpy as np
+
 
 class batch_object(object):
         """docstring for batch_object"""
@@ -57,6 +59,41 @@ def generate_lin_sep_blobs(n_samples, random_state):
 		centers=[(0.2, 0.2), (0.8, 0.8)], cluster_std=0.1,
 		random_state=random_state)
 	return samples[0], samples[1]
+
+def draw_from_moons(n_samples, random_state):
+	samples = make_moons(n_samples=n_samples, 
+		random_state=random_state)
+	return samples[0], samples[1]
+
+def draw_from_sectors(size, inner, outer, random_state):
+	np.random.seed(random_state)
+	x1 = np.random.rand(size)*outer
+	x2 = np.random.rand(size)*outer
+	feature =  np.vstack([x1,x2]).transpose()
+	z = np.linalg.norm(feature, ord=2, axis=1)
+	feature = feature[(z<=outer) & (z>=inner)]
+	return feature
+
+def generate_difficult_sectors(n_samples, random_state):
+	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
+	label0 = np.zeros(len(feature0))
+	label1 = np.ones(len(feature1))
+	feature = np.concatenate((feature0, feature1), axis=0)
+	label = np.concatenate((label0, label1), axis=0)
+	return feature, label
+
+def plot_difficult_sectors(feature, label, name=None):
+	pylab.figure()
+	red = feature[label == 0]
+	blue = feature[label == 1]
+	pylab.plot(red[:, 0], red[:, 1], 'r.')
+	pylab.plot(blue[:, 0], blue[:, 1], 'b.')
+	pylab.plot([0,0.283],[0.283,0])
+	if name==None:
+		pylab.show()
+	else:
+		pylab.savefig(name)
 
 def plot_blobs(feature, label, name=None):
 	pylab.figure()
@@ -114,3 +151,12 @@ def visual_separable_binary(feature,label,margin, name=None):
 		pylab.show()
 	else:
 		pylab.savefig(name)
+
+def random_points(start, end, size, random_state):
+	np.random.seed(random_state)
+	x1 = np.random.uniform(start, end, size)
+	x2 = np.random.uniform(start, end, size)
+	feature =  np.vstack([x1,x2]).transpose()
+	label = np.random.choice(2,size)
+	return feature, label
+	
