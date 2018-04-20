@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from sklearn.datasets import make_classification, make_blobs
-from sklearn.datasets import make_circles
+from sklearn.datasets import make_circles, make_moons
 import sklearn
 import numpy 
 import pylab
@@ -60,6 +60,10 @@ def generate_lin_sep_blobs(n_samples, random_state):
 		random_state=random_state)
 	return samples[0], samples[1]
 
+def draw_from_moons(n_samples, random_state):
+	samples = make_moons(n_samples=n_samples, 
+		random_state=random_state)
+	return samples[0], samples[1]
 
 def draw_from_sectors(size, inner, outer, random_state):
 	np.random.seed(random_state)

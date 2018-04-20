@@ -23,14 +23,17 @@ margin = 0.01
 # feature, label = lin_sep_with_ground_truth(samples, margin, random_state=10)
 
 # Blob data
-# feature, label = generate_lin_sep_blobs(samples, random_state=10)
+feature, label = generate_lin_sep_blobs(samples, random_state=10)
 
 # Non linear data
 # feature, label = non_lin_sep(samples, margin, random_state=10)
 
 # sector data
-feature, label = generate_difficult_sectors(samples, random_state=10)
+# feature, label = generate_difficult_sectors(samples, random_state=10)
 
+# moon data
+
+# feature, label = draw_from_moons(samples, random_state=10)
 
 label_hot = to_categorical(label, 2)
 feature_train, feature_test, label_train, label_test = train_test_split(
@@ -48,8 +51,8 @@ with tf.name_scope('placeholder'):
     y_=tf.placeholder(tf.float32,shape=[None, label_hot.shape[1]])
 
 
-# y_conv_logit, y_conv = model_graph(x, y_)
-y_conv_logit, y_conv = model_graph_asym(x, y_)
+y_conv_logit, y_conv = model_graph(x, y_)
+# y_conv_logit, y_conv = model_graph_asym(x, y_)
 
 with tf.name_scope('cross_entropy'):
 	cross_entropy=tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
@@ -73,8 +76,8 @@ with tf.name_scope('train'):
     theta_1 = 0
     cross_entropy_with_weight_decay=tf.add(cross_entropy,theta_1*l2_loss)
 
-    # train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
-    train_op=tf.train.MomentumOptimizer(1e-4, 0.9).minimize(cross_entropy_with_weight_decay)
+    train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
+    # train_op=tf.train.MomentumOptimizer(1e-4, 0.9).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.RMSPropOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.GradientDescentOptimizer(
     # 	1e-4).minimize(cross_entropy_with_weight_decay)
@@ -180,13 +183,15 @@ def plot_result(start, end):
 	# visual_separable_binary(feature_random, pre_label_nn, 0.0001,
 	# 	'../result/non_linear_demo/nn_cross_entropy.png')
 
-	plot_difficult_sectors(feature, label,
-		'../result/assymetric_network/training_data.png')
+	# plot_difficult_sectors(feature, label,
+	# 	'../result/bolb_softsign/training_data.png')
+	plot_blobs(feature, label,
+		'../result/blob_square_activation/training_data.png')
 	plot_blobs(feature_random, pre_label_svm,
-		'../result/assymetric_network/svm_cross_entropy.png')
+		'../result/blob_square_activation/svm_cross_entropy.png')
 	plot_blobs(feature_random, pre_label_nn,
-		'../result/assymetric_network/nn_cross_entropy.png')
+		'../result/blob_square_activation/nn_cross_entropy.png')
 
-
-train_model(train_op, 80000)
-plot_result(0,0.4)
+if __name__ == '__main__':
+	train_model(train_op, 2001)
+	plot_result(-10,10)
