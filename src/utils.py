@@ -83,6 +83,17 @@ def generate_difficult_sectors(n_samples, random_state):
 	label = np.concatenate((label0, label1), axis=0)
 	return feature, label
 
+
+
+def generate_sectors_not_sep(n_samples, random_state):
+	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 0.25, 0.4, random_state)
+	label0 = np.zeros(len(feature0))
+	label1 = np.ones(len(feature1))
+	feature = np.concatenate((feature0, feature1), axis=0)
+	label = np.concatenate((label0, label1), axis=0)
+	return feature, label
+
 def plot_difficult_sectors(feature, label, name=None):
 	pylab.figure()
 	red = feature[label == 0]

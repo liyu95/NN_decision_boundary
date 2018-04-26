@@ -10,7 +10,7 @@ batch_size = 200
 train_steps = 0
 output_step = 1000
 
-samples = 2000
+samples = 5000
 margin = 0.01
 
 # Iris data
@@ -23,13 +23,15 @@ margin = 0.01
 # feature, label = lin_sep_with_ground_truth(samples, margin, random_state=10)
 
 # Blob data
-feature, label = generate_lin_sep_blobs(samples, random_state=10)
+# feature, label = generate_lin_sep_blobs(samples, random_state=10)
 
 # Non linear data
 # feature, label = non_lin_sep(samples, margin, random_state=10)
 
 # sector data
-# feature, label = generate_difficult_sectors(samples, random_state=10)
+feature, label = generate_difficult_sectors(samples, random_state=10)
+# feature, label = generate_sectors_not_sep(samples, random_state=10)
+
 
 # moon data
 
@@ -168,7 +170,7 @@ loss_rank = np.argsort(cross_entropy_output)
 ## predict the random data, check the exact boundary
 def plot_result(start, end):
 	feature_random, label_random = random_points(start,
-		end, samples*100,
+		end, samples*20,
 		random_state=100)
 	label_random = to_categorical(label_random, 2)
 	pre_label_nn= sess.run(predicted_label,
@@ -185,13 +187,13 @@ def plot_result(start, end):
 
 	# plot_difficult_sectors(feature, label,
 	# 	'../result/bolb_softsign/training_data.png')
-	plot_blobs(feature, label,
-		'../result/blob_square_activation/training_data.png')
+	plot_difficult_sectors(feature, label,
+		'../result/sector_lrelu/training_data.png')
 	plot_blobs(feature_random, pre_label_svm,
-		'../result/blob_square_activation/svm_cross_entropy.png')
+		'../result/sector_lrelu/svm_cross_entropy.png')
 	plot_blobs(feature_random, pre_label_nn,
-		'../result/blob_square_activation/nn_cross_entropy.png')
+		'../result/sector_lrelu/nn_cross_entropy.png')
 
 if __name__ == '__main__':
-	train_model(train_op, 2001)
-	plot_result(-10,10)
+	train_model(train_op, 30001)
+	plot_result(0,0.4)
