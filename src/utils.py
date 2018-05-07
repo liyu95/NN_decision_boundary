@@ -78,10 +78,10 @@ def draw_from_sectors(size, inner, outer, random_state):
 	return feature
 
 def generate_difficult_sectors(n_samples, random_state):
-	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
-	feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
-	# feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
-	# feature1 = draw_from_sectors(n_samples*3, 300, 400, random_state)
+	# feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	# feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
+	feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 300, 400, random_state)
 	label0 = np.zeros(len(feature0))
 	label1 = np.ones(len(feature1))
 	feature = np.concatenate((feature0, feature1), axis=0)
@@ -91,8 +91,10 @@ def generate_difficult_sectors(n_samples, random_state):
 
 
 def generate_sectors_not_sep(n_samples, random_state):
-	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
-	feature1 = draw_from_sectors(n_samples*3, 0.25, 0.4, random_state)
+	# feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	# feature1 = draw_from_sectors(n_samples*3, 0.25, 0.4, random_state)
+	feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 240, 400, random_state)
 	label0 = np.zeros(len(feature0))
 	label1 = np.ones(len(feature1))
 	feature = np.concatenate((feature0, feature1), axis=0)
@@ -133,10 +135,30 @@ def plot_blobs_all_together(feature, label, feature_t, label_t,
 	blue = feature[label == 1]
 	green = feature_t[label_t == 0]
 	black = feature_t[label_t == 1]
-	pylab.plot(red[:, 0], red[:, 1], 'r.', alpha=0.3)
-	pylab.plot(blue[:, 0], blue[:, 1], 'b.', alpha=0.3)
-	pylab.plot(green[:, 0], green[:, 1], 'g.', alpha=0.3)
-	pylab.plot(black[:, 0], black[:, 1], 'k.', alpha=0.3)
+	pylab.plot(red[:, 0], red[:, 1], 'r.')
+	pylab.plot(blue[:, 0], blue[:, 1], 'b.')
+	pylab.plot(green[:, 0], green[:, 1], 'g.')
+	pylab.plot(black[:, 0], black[:, 1], 'k.')
+	pylab.xticks(fontsize=17)
+	pylab.yticks(fontsize=17)
+	pylab.title(name.split('/')[-1].split('.')[0],
+		fontsize=17)
+	if name==None:
+		pylab.show()
+	else:
+		pylab.savefig(name)
+
+def boundary_overlay(feature, label, feature_t, label_t, 
+	name=None):
+	pylab.figure()
+	red = feature[label == 0]
+	blue = feature[label == 1]
+	green = feature_t[label_t == 0]
+	black = feature_t[label_t == 1]
+	pylab.plot(red[:, 0], red[:, 1], 'r.', alpha=0.1)
+	pylab.plot(blue[:, 0], blue[:, 1], 'b.', alpha=0.1)
+	pylab.plot(green[:, 0], green[:, 1], 'y.', alpha=0.05)
+	pylab.plot(black[:, 0], black[:, 1], 'c.', alpha=0.05)
 	pylab.xticks(fontsize=17)
 	pylab.yticks(fontsize=17)
 	pylab.title(name.split('/')[-1].split('.')[0],
@@ -149,14 +171,19 @@ def plot_blobs_all_together(feature, label, feature_t, label_t,
 
 def lin_sep_with_ground_truth(size, margin, random_state):
 	np.random.seed(random_state)
-	x1 = np.random.rand(size)
-	x2 = np.random.rand(size)
+	# x1 = np.random.rand(size)
+	# x2 = np.random.rand(size)
+	x1 = np.random.rand(size)*100
+	x2 = np.random.rand(size)*100
+	margin = margin*100
+	center = 1.0
+	center = center*100
 	feature =  np.vstack([x1,x2]).transpose()
 	z = np.sum(feature, 1)
-	feature = feature[(z<=1.0-margin) | (z>=1.0+margin)]
-	z = z[(z<=1.0-margin) | (z>=1.0+margin)]
-	ind_1 = np.where(z>=1.0+margin)[0]
-	ind_2 = np.where(z<=1.0-margin)[0]
+	feature = feature[(z<=center-margin) | (z>=center+margin)]
+	z = z[(z<=center-margin) | (z>=center+margin)]
+	ind_1 = np.where(z>=center+margin)[0]
+	ind_2 = np.where(z<=center-margin)[0]
 	label = np.zeros(len(feature))
 	label[ind_1] = 0
 	label[ind_2] = 1

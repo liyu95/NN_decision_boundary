@@ -11,7 +11,7 @@ train_steps = 0
 output_step = 1000
 
 samples = 5000
-margin = 0.01
+margin = 0.1
 
 # Iris data
 # data = load_iris()
@@ -23,14 +23,14 @@ margin = 0.01
 # feature, label = lin_sep_with_ground_truth(samples, margin, random_state=10)
 
 # Blob data
-feature, label = generate_lin_sep_blobs(samples, random_state=10)
+# feature, label = generate_lin_sep_blobs(samples, random_state=10)
 
 # Non linear data
 # feature, label = non_lin_sep(samples, margin, random_state=10)
 
 # sector data
 # feature, label = generate_difficult_sectors(samples, random_state=10)
-# feature, label = generate_sectors_not_sep(samples, random_state=10)
+feature, label = generate_sectors_not_sep(samples, random_state=10)
 
 
 # moon data
@@ -199,10 +199,13 @@ def plot_result_transform(start, end):
 		'../result/exploration/Training_data.png')
 	plot_blobs_all_together(feature_random_transform, pre_label_svm,
 		feature_transform, label,
-		'../result/exploration/SVM_decision_boundary.png')
+		'../result/exploration/SVM_decision_boundary_transform.png')
 	plot_blobs_all_together(feature_random_transform, pre_label_nn,
 		feature_transform, label,
-		'../result/exploration/NN_decision_boundary.png')
+		'../result/exploration/NN_decision_boundary_transform.png')
+	boundary_overlay(feature_random_transform, pre_label_nn,
+		feature_random_transform, pre_label_svm,
+		'../result/exploration/Decision_boundary_overlay_transform.png')
 
 def plot_result_original(start, end):
 	feature_random, label_random = random_points(start,
@@ -233,11 +236,12 @@ def plot_result_original(start, end):
 	plot_blobs_all_together(feature_random, pre_label_nn,
 		feature, label,
 		'../result/exploration/NN_decision_boundary.png')
-	plot_blobs_all_together(feature_random, pre_label_nn,
+	boundary_overlay(feature_random, pre_label_nn,
 		feature_random, pre_label_svm,
 		'../result/exploration/Decision_boundary_overlay.png')
 
 
 if __name__ == '__main__':
-	train_model(train_op, 50001)
-	plot_result_original(-20,120)
+	train_model(train_op, 100001)
+	plot_result_original(-100,500)
+	plot_result_transform(-100,500)
