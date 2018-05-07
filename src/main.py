@@ -11,7 +11,7 @@ train_steps = 0
 output_step = 1000
 
 samples = 5000
-margin = 0.01
+margin = 0.1
 
 # Iris data
 # data = load_iris()
@@ -29,8 +29,8 @@ margin = 0.01
 # feature, label = non_lin_sep(samples, margin, random_state=10)
 
 # sector data
-feature, label = generate_difficult_sectors(samples, random_state=10)
-# feature, label = generate_sectors_not_sep(samples, random_state=10)
+# feature, label = generate_difficult_sectors(samples, random_state=10)
+feature, label = generate_sectors_not_sep(samples, random_state=10)
 
 
 # moon data
@@ -53,7 +53,7 @@ with tf.name_scope('placeholder'):
     y_=tf.placeholder(tf.float32,shape=[None, label_hot.shape[1]])
 
 
-y_conv_logit, y_conv = model_graph(x, y_)
+y_conv_logit, y_conv, x_transform = model_graph(x, y_)
 # y_conv_logit, y_conv = model_graph_asym(x, y_)
 
 with tf.name_scope('cross_entropy'):
@@ -168,17 +168,25 @@ loss_rank = np.argsort(cross_entropy_output)
 # 	'../result/non_linear_demo/training_data.png')
 
 ## predict the random data, check the exact boundary
-def plot_result(start, end):
+def plot_result_transform(start, end):
 	feature_random, label_random = random_points(start,
 		end, samples*20,
 		random_state=100)
 	label_random = to_categorical(label_random, 2)
-	pre_label_nn= sess.run(predicted_label,
+	pre_label_nn, feature_random_transform= sess.run(
+		[predicted_label, x_transform],
 		feed_dict={
 		x: feature_random, 
 		y_: label_random})
 
-	pre_label_svm = clf.predict(feature_random)
+	feature_transform= sess.run(
+		x_transform,
+		feed_dict={
+		x: feature, 
+		y_: label_hot})
+
+	clf = get_svm(feature_transform, label)
+	pre_label_svm = clf.predict(feature_random_transform)
 
 	# visual_separable_binary(feature_random, pre_label_svm,0.0001,
 	# 	'../result/non_linear_demo/svm_cross_entropy.png')
@@ -187,13 +195,53 @@ def plot_result(start, end):
 
 	# plot_difficult_sectors(feature, label,
 	# 	'../result/bolb_softsign/training_data.png')
-	plot_difficult_sectors(feature, label,
-		'../result/sector_lrelu/training_data.png')
-	plot_blobs(feature_random, pre_label_svm,
-		'../result/sector_lrelu/svm_cross_entropy.png')
-	plot_blobs(feature_random, pre_label_nn,
-		'../result/sector_lrelu/nn_cross_entropy.png')
+	plot_blobs(feature, label,
+		'../result/exploration/Training_data.png')
+	plot_blobs_all_together(feature_random_transform, pre_label_svm,
+		feature_transform, label,
+		'../result/exploration/SVM_decision_boundary_transform.png')
+	plot_blobs_all_together(feature_random_transform, pre_label_nn,
+		feature_transform, label,
+		'../result/exploration/NN_decision_boundary_transform.png')
+	boundary_overlay(feature_random_transform, pre_label_nn,
+		feature_random_transform, pre_label_svm,
+		'../result/exploration/Decision_boundary_overlay_transform.png')
+
+def plot_result_original(start, end):
+	feature_random, label_random = random_points(start,
+		end, samples*20,
+		random_state=100)
+	label_random = to_categorical(label_random, 2)
+	pre_label_nn= sess.run(
+		predicted_label,
+		feed_dict={
+		x: feature_random, 
+		y_: label_random})
+
+	feature_transform= sess.run(
+		x_transform,
+		feed_dict={
+		x: feature, 
+		y_: label_hot})
+
+	pre_label_svm = clf.predict(feature_random)
+
+	# plot_difficult_sectors(feature, label,
+	# 	'../result/bolb_softsign/training_data.png')
+	plot_blobs(feature, label,
+		'../result/exploration/Training_data.png')
+	plot_blobs_all_together(feature_random, pre_label_svm,
+		feature, label,
+		'../result/exploration/SVM_decision_boundary.png')
+	plot_blobs_all_together(feature_random, pre_label_nn,
+		feature, label,
+		'../result/exploration/NN_decision_boundary.png')
+	boundary_overlay(feature_random, pre_label_nn,
+		feature_random, pre_label_svm,
+		'../result/exploration/Decision_boundary_overlay.png')
+
 
 if __name__ == '__main__':
-	train_model(train_op, 30001)
-	plot_result(0,0.4)
+	train_model(train_op, 100001)
+	plot_result_original(-100,500)
+	plot_result_transform(-100,500)
