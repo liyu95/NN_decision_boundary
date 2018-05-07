@@ -55,12 +55,12 @@ def play_iris():
 
 
 def generate_lin_sep_blobs(n_samples, random_state):
-	# samples = make_blobs(n_samples=n_samples, n_features=2,
-	# 	centers=[(0.2, 0.2), (0.8, 0.8)], cluster_std=0.1,
-	# 	random_state=random_state)
 	samples = make_blobs(n_samples=n_samples, n_features=2,
-		centers=[(20, 20), (80, 80)], cluster_std=10,
+		centers=[(0.2, 0.2), (0.8, 0.8)], cluster_std=0.1,
 		random_state=random_state)
+	# samples = make_blobs(n_samples=n_samples, n_features=2,
+	# 	centers=[(20, 20), (80, 80)], cluster_std=10,
+	# 	random_state=random_state)
 	return samples[0], samples[1]
 
 def draw_from_moons(n_samples, random_state):
@@ -78,10 +78,10 @@ def draw_from_sectors(size, inner, outer, random_state):
 	return feature
 
 def generate_difficult_sectors(n_samples, random_state):
-	# feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
-	# feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
-	feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
-	feature1 = draw_from_sectors(n_samples*3, 300, 400, random_state)
+	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
+	# feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
+	# feature1 = draw_from_sectors(n_samples*3, 300, 400, random_state)
 	label0 = np.zeros(len(feature0))
 	label1 = np.ones(len(feature1))
 	feature = np.concatenate((feature0, feature1), axis=0)
@@ -91,10 +91,10 @@ def generate_difficult_sectors(n_samples, random_state):
 
 
 def generate_sectors_not_sep(n_samples, random_state):
-	# feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
-	# feature1 = draw_from_sectors(n_samples*3, 0.25, 0.4, random_state)
-	feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
-	feature1 = draw_from_sectors(n_samples*3, 240, 400, random_state)
+	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 0.25, 0.4, random_state)
+	# feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
+	# feature1 = draw_from_sectors(n_samples*3, 240, 400, random_state)
 	label0 = np.zeros(len(feature0))
 	label1 = np.ones(len(feature1))
 	feature = np.concatenate((feature0, feature1), axis=0)
@@ -171,13 +171,13 @@ def boundary_overlay(feature, label, feature_t, label_t,
 
 def lin_sep_with_ground_truth(size, margin, random_state):
 	np.random.seed(random_state)
-	# x1 = np.random.rand(size)
-	# x2 = np.random.rand(size)
-	x1 = np.random.rand(size)*100
-	x2 = np.random.rand(size)*100
-	margin = margin*100
+	x1 = np.random.rand(size)
+	x2 = np.random.rand(size)
+	# x1 = np.random.rand(size)*100
+	# x2 = np.random.rand(size)*100
+	# margin = margin*100
 	center = 1.0
-	center = center*100
+	# center = center*100
 	feature =  np.vstack([x1,x2]).transpose()
 	z = np.sum(feature, 1)
 	feature = feature[(z<=center-margin) | (z>=center+margin)]
