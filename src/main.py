@@ -29,8 +29,8 @@ margin = 0.1
 # feature, label = non_lin_sep(samples, margin, random_state=10)
 
 # sector data
-# feature, label = generate_difficult_sectors(samples, random_state=10)
-feature, label = generate_sectors_not_sep(samples, random_state=10)
+feature, label = generate_difficult_sectors(samples, random_state=10)
+# feature, label = generate_sectors_not_sep(samples, random_state=10)
 
 
 # moon data
@@ -242,6 +242,6 @@ def plot_result_original(start, end):
 
 
 if __name__ == '__main__':
-	train_model(train_op, 100001)
-	plot_result_original(-100,500)
-	plot_result_transform(-100,500)
+	train_model(train_op, 50001)
+	plot_result_original(0,0.4)
+	plot_result_transform(0,0.4)
