@@ -23,13 +23,13 @@ margin = 0.1
 # feature, label = lin_sep_with_ground_truth(samples, margin, random_state=10)
 
 # Blob data
-feature, label = generate_lin_sep_blobs(samples, random_state=10)
+# feature, label = generate_lin_sep_blobs(samples, random_state=10)
 
 # Non linear data
 # feature, label = non_lin_sep(samples, margin, random_state=10)
 
 # sector data
-# feature, label = generate_difficult_sectors(samples, random_state=10)
+feature, label = generate_difficult_sectors(samples, random_state=10)
 # feature, label = generate_sectors_not_sep(samples, random_state=10)
 
 

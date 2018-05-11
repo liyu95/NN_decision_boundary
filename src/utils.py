@@ -79,10 +79,10 @@ def draw_from_sectors(size, inner, outer, random_state):
 	return feature
 
 def generate_difficult_sectors(n_samples, random_state):
-	feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
-	feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
-	# feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
-	# feature1 = draw_from_sectors(n_samples*3, 300, 400, random_state)
+	# feature0 = draw_from_sectors(n_samples, 0.1, 0.2, random_state)
+	# feature1 = draw_from_sectors(n_samples*3, 0.283, 0.4, random_state)
+	feature0 = draw_from_sectors(n_samples, 0.1, 200, random_state)
+	feature1 = draw_from_sectors(n_samples*3, 300, 400, random_state)
 	label0 = np.zeros(len(feature0))
 	label1 = np.ones(len(feature1))
 	feature = np.concatenate((feature0, feature1), axis=0)
@@ -106,9 +106,12 @@ def plot_difficult_sectors(feature, label, name=None):
 	pylab.figure()
 	red = feature[label == 0]
 	blue = feature[label == 1]
-	pylab.plot(red[:, 0], red[:, 1], 'r.')
-	pylab.plot(blue[:, 0], blue[:, 1], 'b.')
-	pylab.plot([0,0.283],[0.283,0])
+	pylab.plot(red[:, 0], red[:, 1], 'g.')
+	pylab.plot(blue[:, 0], blue[:, 1], 'k.')
+	pylab.plot([0,290],[290,0], linewidth=3.5)
+	pylab.xticks(fontsize=17)
+	pylab.yticks(fontsize=17)
+	pylab.title('Traning_data', fontsize=17)
 	if name==None:
 		pylab.show()
 	else:
