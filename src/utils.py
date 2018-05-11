@@ -11,6 +11,7 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.model_selection import cross_val_score
 from itertools import cycle
 import numpy as np
+import tensorflow as tf
 
 
 class batch_object(object):
@@ -228,3 +229,114 @@ def random_points(start, end, size, random_state):
 	label = np.random.choice(2,size)
 	return feature, label
 	
+# help function for residual network
+def weights_init(shape):
+    '''
+    Weights initialization helper function.
+    
+    Input(s): shape - Type: int list, Example: [5, 5, 32, 32], This parameter is used to define dimensions of weights tensor
+    
+    Output: tensor of weights in shape defined with the input to this function
+    '''
+    return tf.Variable(tf.truncated_normal(shape, stddev=0.05))
+
+def bias_init(shape, bias_value=0.01):
+    '''
+    Bias initialization helper function.
+    
+    Input(s): shape - Type: int list, Example: [32], This parameter is used to define dimensions of bias tensor.
+              bias_value - Type: float number, Example: 0.01, This parameter is set to be value of bias tensor.
+    
+    Output: tensor of biases in shape defined with the input to this function
+    '''
+    return tf.Variable(tf.constant(bias_value, shape=shape))
+
+def conv2d_custom(input, filter_size, num_of_channels, num_of_filters, activation=tf.nn.relu, dropout=None,
+                  padding='SAME', max_pool=True, strides=(1, 1)):  
+    '''
+    This function is used to define a convolutional layer for a network,
+    
+    Input(s): input - this is input into convolutional layer (Previous layer or an image)
+              filter_size - also called kernel size, kernel is moved (convolved) across an image. Example: 3
+              number_of_channels - how many channels the input tensor has
+              number_of_filters - this is hyperparameter, and this will set one of dimensions of the output tensor from 
+                                  this layer. Note: this number will be number_of_channels for the layer after this one
+              max_pool - if this is True, output tensor will be 2x smaller in size. Max pool is there to decrease spartial 
+                        dimensions of our output tensor, so computation is less expensive.
+              padding - the way that we pad input tensor with zeros ("SAME" or "VALID")
+              activation - the non-linear function used at this layer.
+              
+              
+    Output: Convolutional layer with input parameters.
+    '''
+    weights = weights_init([filter_size, filter_size, num_of_channels, num_of_filters])
+    bias = bias_init([num_of_filters])
+    
+    layer = tf.nn.conv2d(input, filter=weights, strides=[1, strides[0], strides[1], 1], padding=padding) + bias
+    
+    if activation != None:
+        layer = activation(layer)
+    
+    if max_pool:
+        layer = tf.nn.max_pool(layer, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+    
+    if dropout != None:
+        layer = tf.nn.dropout(layer, dropout)
+        
+    return layer
+
+def flatten(layer):
+    '''
+    This method is used to convert convolutional output (4 dimensional tensor) into 2 dimensional tensor.
+    
+    Input(s): layer - the output from last conv layer in your network (4d tensor)
+    
+    Output(s): reshaped - reshaped layer, 2 dimensional matrix
+               elements_num - number of features for this layer
+    '''
+    shape = layer.get_shape()
+    
+    num_elements_ = shape[1:4].num_elements()
+    
+    flattened_layer = tf.reshape(layer, [-1, num_elements_])
+    return flattened_layer, num_elements_
+
+def dense_custom(input, input_size, output_size, activation=tf.nn.relu, dropout=None):
+    '''
+    This function is used to define a fully connected layer for a network,
+    
+    Input(s): input - this is input into fully connected (Dense) layer (Previous layer or an image)
+              input_size - how many neurons/features the input tensor has. Example: input.shape[1]
+              output_shape - how many neurons this layer will have
+              activation - the non-linear function used at this layer.    
+              dropout - the regularization method used to prevent overfitting. The way it works, we randomly turn off
+                        some neurons in this layer
+              
+    Output: fully connected layer with input parameters.
+    '''
+    weights = weights_init([input_size, output_size])
+    bias = bias_init([output_size])
+    
+    layer = tf.matmul(input, weights) + bias
+    
+    if activation != None:
+        layer = activation(layer)
+    
+    if dropout != None:
+        layer = tf.nn.dropout(layer, dropout)
+        
+    return layer
+
+def residual_unit(layer, channels):
+    '''
+    Input(s): layer - conv layer before this res unit
+    
+    Output(s): ResUnit layer - implemented as described in the paper
+    '''
+    step1 = tf.layers.batch_normalization(layer)
+    step2 = tf.nn.relu(step1)
+    step3 = conv2d_custom(step2, 3, channels, channels, activation=None, max_pool=False) #32 number of feautres is hyperparam
+    step4 = tf.layers.batch_normalization(step3)
+    step5 = tf.nn.relu(step4)
+    step6 = conv2d_custom(step5, 3, channels, channels, activation=None, max_pool=False)
+    return layer + step6
