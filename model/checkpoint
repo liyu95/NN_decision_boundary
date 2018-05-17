@@ -1,0 +1,5 @@
+model_checkpoint_path: "mnist_resnet_3_class_200.ckpt"
+all_model_checkpoint_paths: "mnist_resnet_3_class_300.ckpt"
+all_model_checkpoint_paths: "mnist_resnet_3_class_0.ckpt"
+all_model_checkpoint_paths: "mnist_resnet_3_class_100.ckpt"
+all_model_checkpoint_paths: "mnist_resnet_3_class_200.ckpt"

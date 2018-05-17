@@ -6,7 +6,7 @@ from sklearn.cross_validation import train_test_split
 import os
 
 test_size = 0.1
-batch_size = 200
+batch_size = 5000
 train_steps = 0
 output_step = 1000
 
@@ -78,11 +78,11 @@ with tf.name_scope('train'):
     theta_1 = 0
     cross_entropy_with_weight_decay=tf.add(cross_entropy,theta_1*l2_loss)
 
-    train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
+    # train_op=tf.train.AdamOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
     # train_op=tf.train.MomentumOptimizer(1e-4, 0.9).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.RMSPropOptimizer(1e-4).minimize(cross_entropy_with_weight_decay)
-    # train_op = tf.train.GradientDescentOptimizer(
-    # 	1e-4).minimize(cross_entropy_with_weight_decay)
+    train_op = tf.train.GradientDescentOptimizer(
+    	1e-4).minimize(cross_entropy_with_weight_decay)
     # train_op = tf.train.GradientDescentOptimizer(5e-4).minimize(hinge_loss)
     # train_op = tf.train.GradientDescentOptimizer(2e-4).minimize(mse)
     # train_op = tf.train.GradientDescentOptimizer(2e-4).minimize(abd)
@@ -242,6 +242,6 @@ def plot_result_original(start, end):
 
 
 if __name__ == '__main__':
-	train_model(train_op, 10001)
+	train_model(train_op, 100001)
 	plot_result_original(-0.2,1.2)
 	plot_result_transform(-0.2,1.2)
