@@ -9,6 +9,7 @@ import math
 import sys
 import tensorflow as tf
 import os
+from tf_utils import *
 
 batch_size = 30
 train_steps = 3000
@@ -28,9 +29,6 @@ def bias_variable(shape):
     return tf.Variable(initial,name='bias')
 
 #functions to generate convolutional layer and pooling layer
-def conv2d(x,W):
-    return tf.nn.conv2d(x,W,strides=[1,1,1,1],padding='SAME')
-
 def conv1d(x,W):
 	return tf.nn.conv1d(x,W,stride=1,padding='SAME')
 
@@ -111,3 +109,35 @@ def model_graph_asym(x, y_):
 	    y_conv=tf.nn.softmax(y_conv_logit)
 	return y_conv_logit, y_conv
 
+
+def densenet(input, num_labels, depth, growth, keep_prob):
+	'''
+	The densenet
+	:param input: A tensor, the original input
+	:num_labels: A scalar, the number of candidate labels
+	:depth: A scalar, the total number of layers in the whole network: 40, 100...
+	:growth: A scalar, the growth rate: 12, 16, 32...
+	'''
+	layers = (depth - 4) / 3
+
+	current = conv2d(input, 3, 16, 3)
+	with tf.variable_scope('block_1'):
+		current, features = densenet_block(current, layers, 16, growth, keep_prob)
+		current = bn_relu_conv_dropout(current, features, features, 1, keep_prob=keep_prob)
+		current = avg_pool(current, 2)
+	with tf.variable_scope('block_2'):
+		current, features = densenet_block(current, layers, features, growth, keep_prob)
+		current = bn_relu_conv_dropout(current, features, features, 1, keep_prob=keep_prob)
+		current = avg_pool(current, 2)
+	with tf.variable_scope('block_3'):
+		current, features = densenet_block(current, layers, features, growth, keep_prob)
+		current = batch_normalization_layer(current)
+		current = tf.nn.relu(current)
+		current = avg_pool(current, 8)
+
+	final_dim = np.prod(current.get_shape().as_list()[1:])
+	x_trans = tf.reshape(current, [ -1, final_dim ])
+	with tf.variable_scope('last_layer'):
+		y_logit = output_layer(x_trans, num_labels)
+
+	return y_logit, x_trans
