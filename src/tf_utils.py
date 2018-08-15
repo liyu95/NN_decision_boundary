@@ -86,22 +86,34 @@ def output_layer(input_layer, num_labels):
 	return fc_h
 
 
-def batch_normalization_layer(input_layer):
+def batch_normalization_layer(inputs, is_training, decay=0.999):
 	'''
 	Helper function to do batch normalization
 	:param input_layer: 4D tensor
+	:param is_training: boolean, do not update the mean and var during testing
 	:return: the 4D tensor after being normalized
 	'''
-	dimension = input_layer.get_shape().as_list()[-1]
-	mean, variance = tf.nn.moments(input_layer, axes=[0, 1, 2])
-	beta = tf.get_variable('beta', dimension, tf.float32,
-	                           initializer=tf.constant_initializer(0.0, tf.float32))
-	gamma = tf.get_variable('gamma', dimension, tf.float32,
-	                            initializer=tf.constant_initializer(1.0, tf.float32))
-	bn_layer = tf.nn.batch_normalization(input_layer, mean, variance, beta, gamma, BN_EPSILON)
-	return bn_layer
+	return tf.contrib.layers.batch_norm(inputs, scale=True, is_training=is_training,
+		updates_collections=None)
+	# scale = tf.Variable(tf.ones([inputs.get_shape()[-1]]))
+	# beta = tf.Variable(tf.zeros([inputs.get_shape()[-1]]))
+	# pop_mean = tf.Variable(tf.zeros([inputs.get_shape()[-1]]), trainable=False)
+	# pop_var = tf.Variable(tf.ones([inputs.get_shape()[-1]]), trainable=False)
 
-def bn_relu_conv_dropout(current, in_features, out_features, kernel_size, stride=1, keep_prob=1):
+	# if is_training:
+	# 	batch_mean, batch_var = tf.nn.moments(inputs,[0])
+	# 	train_mean = tf.assign(pop_mean,
+	# 	                       pop_mean * decay + batch_mean * (1 - decay))
+	# 	train_var = tf.assign(pop_var,
+	# 	                      pop_var * decay + batch_var * (1 - decay))
+	# 	with tf.control_dependencies([train_mean, train_var]):
+	# 	    return tf.nn.batch_normalization(inputs,
+	# 	        batch_mean, batch_var, beta, scale, epsilon)
+	# else:
+	# 	return tf.nn.batch_normalization(inputs,
+	# 	    pop_mean, pop_var, beta, scale, epsilon)
+
+def bn_relu_conv_dropout(current, in_features, out_features, kernel_size, is_training, stride=1, keep_prob=1):
 	'''
 	A commonly used building block in Resnet and Densenet
 	:param current: A tensor, the input tensor
@@ -112,13 +124,13 @@ def bn_relu_conv_dropout(current, in_features, out_features, kernel_size, stride
 	:param keep_prob: A scalar, the dropout keep ratio
 	:return: the output tensor
 	'''
-	current = batch_normalization_layer(current)
+	current = batch_normalization_layer(current, is_training)
 	current = tf.nn.relu(current)
 	current = conv2d(current, in_features, out_features, kernel_size, stride)
 	current = tf.nn.dropout(current, keep_prob)
 	return current
 
-def conv_bn_relu(input_layer, filter_shape, stride):
+def conv_bn_relu(input_layer, filter_shape, stride, is_training):
 	'''
 	A helper function to conv, batch normalize and relu the input tensor sequentially
 	:param input_layer: 4D tensor
@@ -128,11 +140,11 @@ def conv_bn_relu(input_layer, filter_shape, stride):
 	'''
 	current = conv2d(input_layer, filter_shape[-2], filter_shape[-1], 
 		filter_shape[0], stride)
-	bn_layer = batch_normalization_layer(current)
+	bn_layer = batch_normalization_layer(current, is_training)
 	output = tf.nn.relu(bn_layer)
 	return output
 
-def conv_bn_relu_dropout(input_layer, filter_shape, stride, keep_prob):
+def conv_bn_relu_dropout(input_layer, filter_shape, stride, keep_prob, is_training):
 	'''
 	A helper function to conv, batch normalize and relu the input tensor sequentially
 	:param input_layer: 4D tensor
@@ -140,11 +152,11 @@ def conv_bn_relu_dropout(input_layer, filter_shape, stride, keep_prob):
 	:param stride: stride size for conv
 	:return: 4D tensor. Y = Relu(batch_normalize(conv(X)))
 	'''
-	output = conv_bn_relu(input_layer, filter_shape, stride)
+	output = conv_bn_relu(input_layer, filter_shape, stride, is_training)
 	output = tf.nn.dropout(output, keep_prob)
 	return output
 
-def densenet_block(input, layers, in_features, growth, keep_prob):
+def densenet_block(input, layers, in_features, growth, keep_prob, is_training):
 	'''
 	Helper function for the densenet block
 	:param input: A tensor, the input tensor for the block
@@ -159,7 +171,7 @@ def densenet_block(input, layers, in_features, growth, keep_prob):
 	features = in_features
 	for idx in xrange(layers):
 		with tf.variable_scope('conv_%d' %idx):
-			tmp = bn_relu_conv_dropout(current, features, growth, 3, keep_prob=keep_prob)
+			tmp = bn_relu_conv_dropout(current, features, growth, 3, is_training, keep_prob=keep_prob)
 			current = tf.concat((current, tmp), axis=3)
 			features += growth
 	return current, features
@@ -179,7 +191,7 @@ def squeeze_excitation_layer(input_x, ratio):
 		scale = input_x * excitation
 	return scale
 
-def residual_block(input_layer, output_channel, keep_prob=1 ,first_block=False, SE=False, ratio=16):
+def residual_block(input_layer, output_channel, is_training, keep_prob=1 ,first_block=False, SE=False, ratio=16):
 	'''
 	Defines a residual block in ResNet
 	:param input_layer: 4D tensor
@@ -204,11 +216,11 @@ def residual_block(input_layer, output_channel, keep_prob=1 ,first_block=False, 
 		if first_block:
 			conv1 = conv2d(input_layer, input_channel, output_channel, 3)
 		else:
-			conv1 = bn_relu_conv_dropout(input_layer, input_channel, output_channel, 3,
+			conv1 = bn_relu_conv_dropout(input_layer, input_channel, output_channel, 3, is_training,
 				stride, keep_prob)
 
 	with tf.variable_scope('conv2_in_block'):
-		conv2 = bn_relu_conv_dropout(conv1, output_channel, output_channel, 3, 1,
+		conv2 = bn_relu_conv_dropout(conv1, output_channel, output_channel, 3, is_training,1,
 			keep_prob)
 
 	if SE:
@@ -227,173 +239,3 @@ def residual_block(input_layer, output_channel, keep_prob=1 ,first_block=False, 
 
 	output = conv2 + padded_input
 	return output
-
-
-
-def mcf_regularizer(inputs, x_trans, output):
-	'''
-	mcf regularizer using dropout, scale up method
-	using chain rule, only need to calculate the diagonal of the hesssian matrix
-	or the last hidden layer and the derivative of the original input
-	suppose the x_trans is the hidden representation
-	we deal with all the batch samples together
-	the variance
-	:params inputs: the model input. It is used to calculate the variance
-	:params x_trans: the hidden representation
-	:params output: the logit output of the whole network.
-	:return: the MCF regularizer
-	'''
-	q = 0.2
-	x_flat = tf.reshape(inputs, [-1,np.prod(inputs.shape.as_list()[1:])])
-	sigma = tf.square(x_flat)*q/(1-q)
-
-	# The hessian approximation
-	hidden_dim = x_trans.shape.as_list()[-1]
-	# sample_id = 0
-	z_der_list = list()
-
-	# retrieve the prediction
-	pred = tf.nn.softmax(output)
-	sq_w_coeff = pred*(1-pred)
-
-	# retrieve the last layer weight
-	# w_sq_scaled: ?*hidden_dim
-	w_last = [v for v in tf.trainable_variables() if 'last_layer/fc_weights:0' in v.name][0]
-	w_last_sq = tf.square(w_last)
-	w_sq_scaled = tf.matmul(sq_w_coeff, tf.transpose(w_last_sq))
-
-	# w_sq_scaled[sample_id, :] should be the coefficient for each sample
-
-	# change it to tf.while_loop() to accelerate
-	for i in range(hidden_dim):
-		der_tmp = tf.square(tf.gradients(x_trans[:, i], inputs)[0])
-		# multiple the second derivate from loss to z coefficient
-		z_der_list.append(der_tmp)
-
-	z_der_sum = tf.convert_to_tensor(z_der_list)
-	z_der_sum = tf.reshape(z_der_sum, [hidden_dim, 
-		-1, np.prod(z_der_sum.shape.as_list()[2:])])*tf.expand_dims(
-		tf.transpose(w_sq_scaled), -1)
-	z_der_sum = tf.reduce_sum(z_der_sum, 0)
-
-	# multiple the second derivative and first derivative
-	mcf_reg = tf.reduce_sum(sigma*z_der_sum)
-	return mcf_reg
-
-# finish the idea of using a set of the hidden representation to accelerate
-def mcf_reg_sto(inputs, x_trans, output, sel_dim_num = 2):
-	'''
-	mcf regularizer using dropout, scale up method with stochastic sampling
-	:params inputs: the model input. It is used to calculate the variance
-	:params x_trans: the hidden representation
-	:params output: the logit output of the whole network.
-	:return: the MCF regularizer
-	'''
-	q = 0.2
-	x_flat = tf.reshape(inputs, [-1,np.prod(inputs.shape.as_list()[1:])])
-	sigma = tf.square(x_flat)*q/(1-q)
-
-	# The hessian approximation
-	hidden_dim = x_trans.shape.as_list()[-1]
-	dim_id_list = np.random.choice(hidden_dim, sel_dim_num, replace=False)
-	dim_id_list = sorted(list(dim_id_list))
-
-	z_der_list = list()
-
-	# retrieve the prediction
-	pred = tf.nn.softmax(output)
-	sq_w_coeff = pred*(1-pred)
-
-	# retrieve the last layer weight
-	# w_sq_scaled: ?*hidden_dim
-	w_last = [v for v in tf.trainable_variables() if 'last_layer/fc_weights:0' in v.name][0]
-	w_last_sq = tf.square(w_last)
-	w_sq_scaled = tf.matmul(sq_w_coeff, tf.transpose(w_last_sq))
-	dim_id_list_gather = list()
-
-	# w_sq_scaled[sample_id, :] should be the coefficient for each sample
-
-	# change it to tf.while_loop() to accelerate
-	for i in list(dim_id_list):
-		der_tmp = tf.square(tf.gradients(x_trans[:, i], inputs)[0])
-		# multiple the second derivate from loss to z coefficient
-		z_der_list.append(der_tmp)
-		dim_id_list_gather.append([i])
-
-	z_der_sum = tf.convert_to_tensor(z_der_list)
-	z_der_sum = tf.reshape(z_der_sum, [sel_dim_num, 
-		-1, np.prod(z_der_sum.shape.as_list()[2:])])*tf.expand_dims(
-		tf.gather_nd(tf.transpose(w_sq_scaled), dim_id_list_gather), -1)
-	z_der_sum = tf.reduce_sum(z_der_sum, 0)
-
-	# multiple the second derivative and first derivative
-	mcf_reg = tf.reduce_sum(sigma*z_der_sum)
-
-	mcf_reg = mcf_reg*np.square(hidden_dim*(1.0/sel_dim_num))
-	return mcf_reg
-
-def mcf_reg_internal(inputs, internal_layer, output, sel_dim_num = 8):
-	'''
-	mcf regularizer using dropout, scale up method
-	using chain rule, only need to calculate the diagonal of the hesssian matrix
-	or the last hidden layer and the derivative of the original input
-	suppose the x_trans is the hidden representation
-	we deal with all the batch samples together
-	the variance
-	:params inputs: the model input. It is used to calculate the variance
-	:params x_trans: the hidden representation
-	:params output: the logit output of the whole network.
-	:return: the MCF regularizer
-	'''
-	x_trans = internal_layer[-1]
-	mcf_layers = internal_layer[:-1]
-
-	q = 0.2
-	mcf_layers_flat = map(lambda x: 
-			tf.reshape(x, [-1, np.prod(x.shape.as_list()[1:])]), mcf_layers)
-	mcf_layers_flat = tf.concat(mcf_layers_flat, 1)
-	sigma = tf.square(mcf_layers_flat)*q/(1-q)
-
-	# The hessian approximation
-	hidden_dim = x_trans.shape.as_list()[-1]
-	dim_id_list = np.random.choice(hidden_dim, sel_dim_num, replace=False)
-	dim_id_list = sorted(list(dim_id_list))
-	# sample_id = 0
-	z_der_list = list()
-
-	# retrieve the prediction
-	pred = tf.nn.softmax(output)
-	sq_w_coeff = pred*(1-pred)
-
-	# retrieve the last layer weight
-	# w_sq_scaled: ?*hidden_dim
-	w_last = [v for v in tf.trainable_variables() if 'last_layer/fc_weights:0' in v.name][0]
-	w_last_sq = tf.square(w_last)
-	w_sq_scaled = tf.matmul(sq_w_coeff, tf.transpose(w_last_sq))
-	dim_id_list_gather = list()
-	# w_sq_scaled[sample_id, :] should be the coefficient for each sample
-
-	# change it to tf.while_loop() to accelerate
-	for i in dim_id_list:
-		der_tmp = tf.gradients(x_trans[:, i], mcf_layers)
-		# multiple the second derivate from loss to z coefficient
-		der_tmp = map(lambda x: tf.reshape(x, [-1, np.prod(x.shape.as_list()[1:])]), der_tmp)
-		der_tmp = tf.concat(der_tmp, 1)
-		der_tmp = tf.square(der_tmp)
-		z_der_list.append(der_tmp)
-		dim_id_list_gather.append([i])
-
-	z_der_sum = tf.convert_to_tensor(z_der_list)
-	z_der_sum = z_der_sum * tf.expand_dims(
-		tf.gather_nd(tf.transpose(w_sq_scaled), dim_id_list_gather), -1)
-	z_der_sum = tf.reduce_sum(z_der_sum, 0)
-
-	# multiple the second derivative and first derivative
-	mcf_reg = tf.reduce_sum(sigma*z_der_sum)
-
-	mcf_reg = mcf_reg*np.square(hidden_dim*(1.0/sel_dim_num))
-	return mcf_reg
-
-
-
-
