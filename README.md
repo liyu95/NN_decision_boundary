@@ -16,3 +16,8 @@ This folder contains some trained model. The name of those models are self-expla
 
 ### result
 This folder contains some of the results, including some very old exploratory results. 
+
+## Interesting results
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/nn_transformed.png)
+
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/svm_transformed.png)
