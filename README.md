@@ -18,8 +18,12 @@ This folder contains some trained model. The name of those models are self-expla
 This folder contains some of the results, including some very old exploratory results. 
 
 ## Interesting results
-![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/nn_transformed.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/svm_transformed.png)
-*NN last layer boundary*
+### MNIST binary classification using ResNet, trained with SGD, Adam can also give similar result
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/SVM_decision_boundary_transform.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_decision_boundary_transform.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_transform_reinitailize.png)
+
+### CIFAR-10 binary classification using DenseNet, trained with SGD, Adam can also give similar result
 
 
-*SVM boundary*
+
+### MNIST 3 class classification using DenseNet, trained with Momentum
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/svm_transformed.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/nn_transformed.png)
