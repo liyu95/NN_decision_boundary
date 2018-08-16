@@ -22,7 +22,7 @@ This folder contains some of the results, including some very old exploratory re
 ![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/SVM_decision_boundary_transform.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_decision_boundary_transform.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_transform_reinitailize.png)
 
 ### CIFAR-10 binary classification using DenseNet, trained with SGD, Adam can also give similar result
-
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/SVM_decision_boundary_transform_cifar10_densenet.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_decision_boundary_transform_cifar10_densenet.png)
 
 
 ### MNIST 3 class classification using DenseNet, trained with Momentum
