@@ -146,3 +146,39 @@ def densenet(input, num_labels, depth, growth, keep_prob, train_flag, shortcut_f
 		# y_logit = output_layer(x_trans, num_labels)
 
 	return y_logit, x_trans
+def densenet_mnist(input, num_labels, depth, growth, keep_prob, train_flag, shortcut_flag, input_shortcut):
+	'''
+	The densenet
+	:param input: A tensor, the original input
+	:num_labels: A scalar, the number of candidate labels
+	:depth: A scalar, the total number of layers in the whole network: 40, 100...
+	:growth: A scalar, the growth rate: 12, 16, 32...
+	'''
+	layers = (depth - 4) / 3
+
+	current = conv2d(input, 1, 16, 3)
+	with tf.variable_scope('block_1'):
+		current, features = densenet_block(current, layers, 16, growth, keep_prob, train_flag)
+		current = bn_relu_conv_dropout(current, features, features, 1, train_flag, keep_prob=keep_prob)
+		current = avg_pool(current, 2)
+	with tf.variable_scope('block_2'):
+		current, features = densenet_block(current, layers, features, growth, keep_prob, train_flag)
+		current = bn_relu_conv_dropout(current, features, features, 1, train_flag, keep_prob=keep_prob)
+		current = avg_pool(current, 2)
+	with tf.variable_scope('block_3'):
+		current, features = densenet_block(current, layers, features, growth, keep_prob, train_flag)
+		current = batch_normalization_layer(current, train_flag)
+		current = tf.nn.relu(current)
+		current = avg_pool(current, 4)
+
+	final_dim = np.prod(current.get_shape().as_list()[1:])
+	current_reshape = tf.reshape(current, [ -1, final_dim ])
+	with tf.variable_scope('transformed_space'):
+		x_trans_tmp = output_layer(current_reshape, 2)
+		x_trans = tf.nn.relu(x_trans_tmp)
+	with tf.variable_scope('last_layer'):
+		y_logit = output_layer(tf.cond(shortcut_flag, lambda: input_shortcut,
+			lambda: x_trans),num_labels)
+		# y_logit = output_layer(x_trans, num_labels)
+
+	return y_logit, x_trans
