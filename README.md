@@ -18,8 +18,12 @@ This folder contains some trained model. The name of those models are self-expla
 This folder contains some of the results, including some very old exploratory results. 
 
 ## Interesting results
+We consider all the convolutional layers as a transformation function and the last hidden layer as the transformed space. We show the decision boundary of the network's last layer on the transformed space and the decision boundary of SVM trained with the transformed data. We show that the NN last layer decision boundary should converge to that of the SVM solution given that the loss converge to zero. In addition, empirically, the bias of the NN boundary is very interesting, which is always around the midpoint between the two cluster on the transformed space. If we reinitialize the last layer and retrain the last layer, the direction result still holds but the bias result does not holds. For more result, please refer to the manuscript.
+
 ### MNIST binary classification using ResNet, trained with SGD, Adam can also give similar result
 ![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/SVM_decision_boundary_transform.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_decision_boundary_transform.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_transform_reinitailize.png)
+
+
 
 ### CIFAR-10 binary classification using DenseNet, trained with SGD, Adam can also give similar result
 ![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/SVM_decision_boundary_transform_cifar10_densenet.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_decision_boundary_transform_cifar10_densenet.png)
