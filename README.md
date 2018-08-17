@@ -1,10 +1,13 @@
 # On the decision boundary of deep neural networks
 
-## Preprint holder
+## Preprint
+https://arxiv.org/abs/1808.05385
 
 ## Basic idea
 While deep learning models and techniques have achieved great empirical success, our understanding of the source of success in many aspects remains very limited. In an attempt to bridge the gap, we investigate the decision boundary of a production deep learning architecture with weak assumptions on both the training data and the model. We demonstrate, both theoretically and empirically, that the last weight layer of a neural network converges to a linear SVM trained on the output of the last hidden layer, for both the binary case and the multi-class case with the commonly used cross-entropy loss. Furthermore, we show empirically that training a neural network as a whole, instead of only fine-tuning the last weight layer, may result in better bias constant for the last weight layer, which is important for generalization. In addition to facilitating the understanding of deep learning, our result can be helpful for solving a broad range of practical problems of deep learning, such as catastrophic forgetting and adversarial attacking.
 
+## Requirements
+*requirement.txt* shows the required packages and their version to run the code. Basically, to run the code, any version of Tensorflow should be fine. But if you want to load the save model, it is better to install the same version as we use. 
 
 ## Folders
 
