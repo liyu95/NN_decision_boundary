@@ -93,29 +93,29 @@ def batch_normalization_layer(inputs, is_training, decay=0.999):
 	:param is_training: boolean, do not update the mean and var during testing
 	:return: the 4D tensor after being normalized
 	'''
-	n_out = inputs.get_shape().as_list()[-1]
-	with tf.variable_scope('bn'):
-		beta = tf.Variable(tf.constant(0.0, shape=[n_out]),
-			name='beta', trainable=True)
-		gamma = tf.Variable(tf.constant(1.0, shape=[n_out]),
-			name='gamma', trainable=True)
-		batch_mean, batch_var = tf.nn.moments(inputs, 
-			range(len(inputs.get_shape().as_list())-1), name='moments')
-		ema = tf.train.ExponentialMovingAverage(decay=0.5)
+	# n_out = inputs.get_shape().as_list()[-1]
+	# with tf.variable_scope('bn'):
+	# 	beta = tf.Variable(tf.constant(0.0, shape=[n_out]),
+	# 		name='beta', trainable=True)
+	# 	gamma = tf.Variable(tf.constant(1.0, shape=[n_out]),
+	# 		name='gamma', trainable=True)
+	# 	batch_mean, batch_var = tf.nn.moments(inputs, 
+	# 		range(len(inputs.get_shape().as_list())-1), name='moments')
+	# 	ema = tf.train.ExponentialMovingAverage(decay=0.5)
 
-		def mean_var_with_update():
-			ema_apply_op = ema.apply([batch_mean, batch_var])
-			with tf.control_dependencies([ema_apply_op]):
-				return tf.identity(batch_mean), tf.identity(batch_var)
+	# 	def mean_var_with_update():
+	# 		ema_apply_op = ema.apply([batch_mean, batch_var])
+	# 		with tf.control_dependencies([ema_apply_op]):
+	# 			return tf.identity(batch_mean), tf.identity(batch_var)
 
-		mean, var = tf.cond(is_training,
-			mean_var_with_update,
-			lambda: (ema.average(batch_mean), ema.average(batch_var)))
-		normed = tf.nn.batch_normalization(inputs, mean, var, beta, gamma, 1e-3)
-	return normed
+	# 	mean, var = tf.cond(is_training,
+	# 		mean_var_with_update,
+	# 		lambda: (ema.average(batch_mean), ema.average(batch_var)))
+	# 	normed = tf.nn.batch_normalization(inputs, mean, var, beta, gamma, 1e-3)
+	# return normed
 
-	# return tf.contrib.layers.batch_norm(inputs, scale=True, is_training=is_training,
-	# 	updates_collections=None)
+	return tf.contrib.layers.batch_norm(inputs, scale=True, is_training=is_training,
+		updates_collections=None)
 	# scale = tf.Variable(tf.ones([inputs.get_shape()[-1]]))
 	# beta = tf.Variable(tf.zeros([inputs.get_shape()[-1]]))
 	# pop_mean = tf.Variable(tf.zeros([inputs.get_shape()[-1]]), trainable=False)
