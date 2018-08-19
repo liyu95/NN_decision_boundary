@@ -34,3 +34,6 @@ We consider all the convolutional layers as a transformation function and the la
 
 ### MNIST 3 class classification using DenseNet, trained with Momentum
 ![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/svm_transformed.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/nn_transformed.png)
+
+## TO BE DONE
+Update code and model with the new batch normalization code
