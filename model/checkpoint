@@ -1,6 +1,2 @@
-model_checkpoint_path: "mnist_resnet_3_class_mom_1400.ckpt"
-all_model_checkpoint_paths: "mnist_resnet_3_class_mom_1000.ckpt"
-all_model_checkpoint_paths: "mnist_resnet_3_class_mom_1100.ckpt"
-all_model_checkpoint_paths: "mnist_resnet_3_class_mom_1200.ckpt"
-all_model_checkpoint_paths: "mnist_resnet_3_class_mom_1300.ckpt"
-all_model_checkpoint_paths: "mnist_resnet_3_class_mom_1400.ckpt"
+model_checkpoint_path: "mnist_resnet_3_class_mom_0.ckpt"
+all_model_checkpoint_paths: "mnist_resnet_3_class_mom_0.ckpt"
