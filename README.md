@@ -2,7 +2,9 @@
 
 ## UPDATES
 2018-08-21:
-Uploaded the trained model for the MNIST three class classification using densenet. The notebook is self-explained.
+Uploaded the trained model for the MNIST three class classification using densenet and the resnet model for the binary classification. The notebook is self-explained.
+
+Densenet model for CIFAR10 will be uploaded tomorrow.
 
 2018-08-20:
 Added the code for checking the model's performance on the testing data for the MNIST three class classification. The performance is around 99.7%, which shows the model architecture and the training process is of no problem.
