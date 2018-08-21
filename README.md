@@ -2,7 +2,7 @@
 
 ## UPDATES
 2018-08-20:
-Added the code for checking the model's performance on the testing data for the MNIST three class classification. The performance is more than 99.8%, which shows the model architecture and the training process is of no problem.
+Added the code for checking the model's performance on the testing data for the MNIST three class classification. The performance is around 99.7%, which shows the model architecture and the training process is of no problem.
 
 The code has been slightly changed, so the current trained model can't be loaded. Will  update the trained models soon.
 
