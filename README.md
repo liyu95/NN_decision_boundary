@@ -1,9 +1,11 @@
 # On the decision boundary of deep neural networks
 
 ## UPDATES
+2018-08-21:
+Uploaded the trained model for the MNIST three class classification using densenet. The notebook is self-explained.
+
 2018-08-20:
 Added the code for checking the model's performance on the testing data for the MNIST three class classification. The performance is around 99.7%, which shows the model architecture and the training process is of no problem.
-
 The code has been slightly changed, so the current trained model can't be loaded. Will  update the trained models soon.
 
 
