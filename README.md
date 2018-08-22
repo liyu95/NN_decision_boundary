@@ -46,11 +46,10 @@ We consider all the convolutional layers as a transformation function and the la
 ![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/SVM_decision_boundary_transform_cifar10_densenet.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/exploration/NN_decision_boundary_transform_cifar10_densenet.png)
 
 #### A different run result
-![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/ciar10_binary/cifar10_nn.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/ciar10_binary/cifar10_svm.png)
-
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/ciar10_binary/cifar10_svm.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/ciar10_binary/cifar10_nn.png)
 
 ### MNIST 3 class classification using DenseNet, trained with Momentum
 ![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/svm_transformed.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class_densenet/nn_transformed.png)
 
 #### A different run result
-![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class/mnist_3_class_nn.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class/mnist_3_class_svm.png)
+![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class/mnist_3_class_svm.png)![alt text](https://github.com/lykaust15/NN_decision_boundary/blob/master/result/mnist_3_class/mnist_3_class_nn.png)
