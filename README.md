@@ -1,6 +1,9 @@
 # On the decision boundary of deep neural networks
 
 ## UPDATES
+2018-08-22:
+Uploaded the trained model fro the CIFAR10 binary classification using densenet.
+
 2018-08-21:
 Uploaded the trained model for the MNIST three class classification using densenet and the resnet model for the binary classification. The notebook is self-explained.
 
